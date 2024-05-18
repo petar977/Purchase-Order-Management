@@ -1,0 +1,50 @@
+﻿@using Po.Common.Models
+@model List<UserRolesViewModel>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container p-0 mb-2">
+    <div class="card-header pt-3">
+        <div class="row">
+            <div class="col-6"><h2>User Management</h2></div>
+            <div class="col-6 text-end"><a class="btn btn-primary" asp-controller="UsersManagement" asp-action="AddUsers"><i class="bi bi-person-plus"></i> Create User</a></div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <div class="card-body">
+            <table class="table table-striped table-responsive">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Companies</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td class="align-middle">@user.Email</td>
+                            <td class="align-middle">@string.Join(", ", user.Roles)</td>
+                            <td class="align-middle">@string.Join(", ", user.Companies)</td>
+                            <td class="align-middle">
+                                <div class="btn-group">
+                                    <a class="btn btn-primary" asp-controller="UsersManagement" asp-action="Manage" asp-route-userId="@user.UserId" title="Manage Roles"><i class="bi bi-kanban"></i></a>
+                                    <a class="btn btn-secondary mx-1" asp-controller="UsersManagement" asp-action="AddCompanies" asp-route-userId="@user.UserId" title="Manage Companies"><i class="bi bi-building-fill-gear"></i></a>
+                                    <a class="btn btn-danger" onclick="Delete('/UsersManagement/DeleteUser', '@user.UserId')" title="Delete"><i class="bi bi-person-slash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/purchaseOrderItems.js"></script>
+    <script src="~/js/moment.js"></script>
+
+}

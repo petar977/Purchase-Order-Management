@@ -1,0 +1,60 @@
+﻿@using Po.Common.Models
+@model List<ManageUserCompaniesViewModel>
+
+<form method="post" class="">
+    <div class="card-header">
+        <h2>Manage User Companies</h2>
+        Add/Remove Companies for User / @ViewBag.UserName.
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" data-bs-toggle="tab" href="#home" aria-selected="true" role="tab">Active</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" data-bs-toggle="tab" href="#profile" aria-selected="false" role="tab" tabindex="-1">Inactive</a>
+            </li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active show" id="home" role="tabpanel">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    if (@Model[i].Status == DataLayer.Models.Status.Active)
+                    {
+                        <div class="form-check m-1">
+                            <input type="hidden" asp-for="@Model[i].CompanyId" />
+                            <input type="hidden" asp-for="@Model[i].CompanyName" />
+                            <input asp-for="@Model[i].Selected" class="form-check-input" />
+                            <label class="form-check-label" asp-for="@Model[i].Selected">
+                                @Model[i].CompanyName
+                            </label>
+                        </div>
+                    }
+                }
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </div>
+            <div class="tab-pane fade" id="profile" role="tabpanel">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    if (@Model[i].Status == DataLayer.Models.Status.Inactive)
+                    {
+                        <div class="form-check m-1">
+                            <input type="hidden" asp-for="@Model[i].CompanyId" />
+                            <input type="hidden" asp-for="@Model[i].CompanyName" />
+                            <input asp-for="@Model[i].Selected" class="form-check-input" />
+                            <label class="form-check-label" asp-for="@Model[i].Selected">
+                                @Model[i].CompanyName
+                            </label>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <input type="submit" value="Update" class="btn btn-primary"
+               style="width:auto" />
+        <a asp-action="Index" asp-route-id="@ViewBag.userId"
+           class="btn btn-danger" style="width:auto">Cancel</a>
+    </div>
+</form>

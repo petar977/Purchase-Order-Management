@@ -1,0 +1,332 @@
+﻿@using Po.Common.Models
+@model ItemsDtoPoiDtoViewModel
+
+<form id="partialForm" method="post" class="border p-3 mt-4">
+    <div class="mb-3 row p-1">
+        <div class="col">
+            <h2 class="text-center">Add Requested Items</h2>
+        </div>
+        <hr />
+    </div>
+    <div class="mb-3 row p-1">
+        <div class="col-lg-4 col-12">
+            <label asp-for="POI.ItemsName" for="name" class="p-0">Item Name</label>
+            <input asp-for="POI.ItemsName" id="name" type="text" class="form-control" />
+            <span asp-validation-for="POI.ItemsName" class="text-danger"></span>
+        </div>
+        <div class="col-lg-1 col-12">
+            <button type="button" class="btn btn-primary form-control mt-4" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi bi-plus-circle"></i></button>
+
+        </div>
+        <div class="col-lg-1 col-12">
+            <label asp-for="POI.Qty" for="qty" class="p-0">Qty</label>
+            <input asp-for="POI.Qty" id="qty" class="form-control" />
+            <span asp-validation-for="POI.Qty" class="text-danger"></span>
+        </div>
+        <div class="col-lg-2 col-12">
+            <label asp-for="POI.UnitPrice" for="price" class="p-0">Unit Price($)</label>
+            <input asp-for="POI.UnitPrice" id="price" class="form-control" />
+            <span asp-validation-for="POI.UnitPrice" class="text-danger"></span>
+        </div>
+        <div class="col-lg-4 col-12">
+            <label asp-for="POI.Link" for="link" class="p-0">Item link</label>
+            <input asp-for="POI.Link" id="link" class="form-control" />
+        </div>
+        <div class="col-lg-4 col-12" hidden>
+            <label asp-for="POI.Total" for="total" class="p-0">Total</label>
+            <input asp-for="POI.Total" id="total" class="form-control" hidden />
+        </div>
+    </div>
+    <div class="mb-3 row p-1">
+        <div class="col-6">
+            <button type="button" id="add" class="btn btn-primary form-control mt-4"><i class="bi bi-plus-circle"></i> Add to list</button>
+        </div>
+        <div class="col-6 ">
+            <button id="clone" type="button" onclick="getCloneData('@User.Identity.Name')" class="btn btn-primary form-control mt-4" data-bs-toggle="modal" data-bs-target="#cloneModal"><i class="bi bi-copy"></i> Clone order items</button>
+            <div class="modal fade" id="cloneModal" role="dialog">
+                <div class="modal-dialog modal-xl">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Clone Items</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3 row p-1">
+                                <div class="col-lg-4 col-12">
+                                    <label for="filterByCompany">Filter by Company:</label>
+                                    <select id="filterByCompany" class="form-select">
+                                        
+                                    </select>
+                                </div>
+                                <div class="col-lg-4 col-12">
+                                    <label for="filterByDays">Filter by Days:</label>
+                                    <select id="filterByDays" class="form-select">
+                                        <option value="0">All</option>
+                                        <option value="30">Past 30 days</option>
+                                        <option value="60">Past 60 days</option>
+                                        <option value="90">Past 90 days</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-4 col-12">
+                                    <label for="filterByStatus">Filter by Status:</label>
+                                    <select id="filterByStatus" class="form-select">
+                                        <option value="Approved" selected>Approved</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col table-responsive">
+                                <table id="orderTable" class="table table-bordered table-striped table-hover" style=" width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Vendor</th>
+                                            <th>Payment Type</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Created By</th>
+                                            <th>Company</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3 row p-1">
+        <label class="p-0 fs-3 text-center">List of Order Items</label>
+        <div class="col table-responsive">
+            <table id="tblBody" class="table table-striped table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                        <th>Link</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="5" style="text-align:right">Total:</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+    </div>
+    <div class="mb-3 row p-1">
+        <div class="col text-end">
+            <button type="button" onclick="Delete('/PurchaseOrderItems/DeleteAll')" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i> Delete All</button>
+            <button type="button" id="btnOpenDocument" class="btn btn-primary btn-sm" title="Pdf" hidden><i class="bi bi-printer"></i></button>
+        </div>
+    </div>
+    <div class="mb-3 row p-1  justify-content-center">
+        <div class="col-6">
+            <a id="toPending" class="btn btn-primary form-control">To Pending</a>
+        </div>
+    </div>
+</form>
+<form method="post" id="edit-items">
+    <div class="modal fade" id="editItemModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit Item</h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <div>
+                            <label asp-for="POI.ItemsName" for="edit-name" class="p-0">Item Name</label>
+                            <input asp-for="POI.ItemsName" id="edit-name" type="text" class="form-control" />
+                            <span asp-validation-for="POI.ItemsName" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="POI.Qty" for="edit-qty" class="p-0 mt-2">Qty</label>
+                            <input asp-for="POI.Qty" id="edit-qty" class="form-control" />
+                            <span asp-validation-for="POI.Qty" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="POI.UnitPrice" for="edit-price" class="p-0 mt-2">Unit Price($)</label>
+                            <input asp-for="POI.UnitPrice" id="edit-price" class="form-control" />
+                            <span asp-validation-for="POI.UnitPrice" class="text-danger"></span>
+                        </div>
+                        <div hidden>
+                            <label asp-for="POI.Total" for="edit-total" class="p-0">Total</label>
+                            <input asp-for="POI.Total" id="edit-total" class="form-control" />
+                            <input asp-for="POI.Id" id="edit-id" class="form-control" />
+                        </div>
+                        <div>
+                            <label asp-for="POI.Link" for="edit-link" class="p-0 mt-2">Link</label>
+                            <input asp-for="POI.Link" id="edit-link" class="form-control" />
+                            <span asp-validation-for="POI.Link" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveEdit" type="button" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<form method="post" id="addItemForm">
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Items</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="">
+                        <div>
+                            <label for="itemName" class="p-0">Item Name</label>
+                            <input asp-for="ItemsDto.Name" id="itemName" class="form-control" />
+                            <span asp-validation-for="ItemsDto.Name" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label for="itemPrice" class="p-0">Unit Price</label>
+                            <input asp-for="ItemsDto.UnitPrice" id="itemPrice" class="form-control" />
+                            <span asp-validation-for="ItemsDto.UnitPrice" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="addItems" form="addItemForm" type="button" class="btn btn-primary">Add</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="modal fade" id="viewModal" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">View Order Items</h4>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive mx-1">
+                    <table id="viewTable" class="table table-hover table-bordered table-striped" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Qty</th>
+                                <th>Unit Price</th>
+                                <th>Link</th>
+                                <th>Total</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="4" style="text-align:right">Total:</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="mb-3 row p-1">
+                    <div class="col">
+                        <label for="info" class="">Prior Purchase Information: </label>
+                        <textarea id="info" disabled class="form-control"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        autoComplete();
+        loadDataTable();
+        cloneDataTable();
+        $("#toPending").on("click", function () {
+            var id = $("#poId").val();
+            changeStatus(`/PurchaseOrder/Pending/${id}`);
+            $("#toPending").addClass("disabled");
+        });
+        var id = $("#poId").val();
+        if (window.location.pathname == `/PurchaseOrder/Edit/${id}`) {
+            $("#toPending").addClass("disabled");
+            $("#toPending").prop("hidden", true);
+            $('#btnOpenDocument').prop("hidden", false);
+            $('#btnOpenDocument').prop('disabled', false);
+
+        }
+        // add order items
+        $('#add').click(function () {
+            if ($("#partialForm").valid()) {
+                $('#partialForm').submit();
+            }
+            else {
+                return false;
+            }
+        });
+        $("#partialForm").on("submit", function (e) {
+            e.preventDefault();
+            $("#total").val($("#price").val() * $("#qty").val());
+            addOrderItem();
+        });
+        // edit order items modal
+        $('#saveEdit').click(function () {
+            if ($("#edit-items").valid()) {
+                $('#edit-items').submit();
+            }
+            else {
+                return false;
+            }
+        });
+        $("#edit-items").on("submit", function (e) {
+            e.preventDefault();
+            editItem();
+            $('#editItemModal').modal('toggle');
+        });
+        // add items modal
+        $('#addItems').click(function () {
+            if ($("#addItemForm").valid()) {
+                $('#addItemForm').submit();
+            }
+            else {
+                return false;
+            }
+        });
+        $("#addItemForm").on("submit", function (e) {
+            e.preventDefault();
+            addItems();
+        });
+        $('#btnOpenDocument').click(function (e) {
+            e.preventDefault();
+            window.open(`/PDF/GeneratePdf/${id}`
+                , '_blank');
+        });
+        $('#viewModal').on('hidden.bs.modal', function (e) {
+            $('#viewTable').DataTable().clear().draw();
+            $('#viewTable').DataTable().destroy();
+        })
+    })
+</script>
+<partial name="_ValidationScriptsPartial" />

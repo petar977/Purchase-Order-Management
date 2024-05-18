@@ -1,0 +1,174 @@
+﻿@model PurchaseOrderDto
+
+<div class="container p-0">
+    <input id="readOnly" asp-for="IsReadOnly" hidden />
+    <div class="card-header pt-2">
+        <div class="row p-1 ">
+            <div class="col-1 col-md-1 p-0 align-content-center">
+                <a id="back" asp-controller="PurchaseOrder" asp-action="Index" class="btn btn-danger border ms-3">
+                    <i class="bi bi-backspace"></i>
+                </a>
+            </div>
+            <div class="col-11">
+                <h2 class="text-center" style="margin-right: 170px">Edit Order</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="post" id="editForm">
+            <div class="row px-3">
+                @if (Model.Status == "Canceled" || Model.Status == "Denied")
+                {
+                    <div class="col bg-danger">
+                        <label for="" class="p-0 text-white">@Model.Status</label>
+                    </div>
+                }
+                else if (Model.Status == "Approved")
+                {
+                    <div class="col bg-success">
+                        <label class="p-0 text-white">@Model.Status</label>
+                    </div>
+                }
+                else if (Model.Status == "InProgress")
+                {
+                    <div class="col bg-warning">
+                        <label class="p-0 text-white">@Model.Status</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="col bg-primary">
+                        <label class="p-0 text-white">@Model.Status</label>
+                    </div>
+                }
+            </div>
+            <div class="mt-2 mb-3 row p-1">
+                <div class="col">
+                    <label asp-for="VendorName" for="vName" class="p-0"></label>
+                    <input id="vName" asp-for="VendorName" class="form-control" />
+                    <span asp-validation-for="VendorName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row p-1">
+                <div class="col">
+                    <label asp-for="PaymentType" for="pType" class="p-0"></label>
+                    <input id="pType" asp-for="PaymentType" class="form-control" />
+                    <span asp-validation-for="PaymentType" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row p-1" hidden>
+                <div class="col">
+                    <label asp-for="Date" for="date" class="p-0"></label>
+                    <input id="date" asp-for="Date" class="form-control" />
+                </div>
+            </div>
+        </form>
+
+        <div id="partial">
+        </div>
+
+        <div class="col-4" hidden>
+            <input form="editForm" id="poId" asp-for="Id" class="form-control" />
+            <input form="editForm" id="companyId" asp-for="CompanyId">
+        </div>
+        <div class="mb-3 row p-1">
+            <div class="col">
+                <label asp-for="Info" for="info" class="p-0"></label>
+                <textarea form="editForm" id="info" asp-for="Info" class="form-control"></textarea>
+                <span asp-validation-for="Info" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="mb-3 row p-1" hidden>
+            <label asp-for="OrderedBy" class="p-0"></label>
+            <input form="editForm" asp-for="OrderedBy" class="form-control" />
+            <span asp-validation-for="OrderedBy"></span>
+
+        </div>
+        <div class="mb-3 row p-1" hidden>
+            <label asp-for="ApprovedBy" for="approvedBy" class="p-0"></label>
+            <input form="editForm" asp-for="ApprovedBy" id="approvedBy" class="form-control" />
+            <span asp-validation-for="ApprovedBy"></span>
+        </div>
+        <div class="mb-3 row p-1">
+            <input form="editForm" id="status" asp-for="Status" class="form-control" hidden />
+            <div class="row ps-4 pe-0">
+                @if (User.IsInRole(Roles.Role_Admin))
+                {
+                    <label class="col-12 ps-0">Change Status to:</label>
+                    @if (Model.Status == "Pending")
+                    {
+                        <div class="btn-group px-0">
+                            <a onclick="changeStatus('/PurchaseOrder/Approve/@Model.Id')" class="btn btn-outline-success onChangeDisable">Approve</a>
+                            <a onclick="changeStatus('/PurchaseOrder/Deny/@Model.Id')" class="btn btn-outline-danger onChangeDisable">Deny</a>
+                            <a onclick="changeStatus('/PurchaseOrder/InProgress/@Model.Id')" class="btn btn-outline-warning onChangeDisable">Progress</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <a onclick="changeStatus('/PurchaseOrder/Pending/@Model.Id')" class="col-12 btn btn-outline-primary onChangeDisable">Pending</a>
+                    }
+                }
+                @if (User.IsInRole(Roles.Role_User))
+                {
+                    @if (Model.Status == "InProgress")
+                    {
+
+                        <label for="btn-group" class="col">Change Status to:</label>
+                        <div class="btn-group">
+                            <a onclick="changeStatus('/PurchaseOrder/Cancel/@Model.Id')" class="btn btn-outline-danger onChangeDisable">Cancel</a>
+                            <a onclick="changeStatus('/PurchaseOrder/Pending/@Model.Id')" class="btn btn-outline-primary onChangeDisable">Pending</a>
+                        </div>
+                    }
+                    else if (Model.Status == "Pending")
+                    {
+                        <label for="btn-group" class="col">Change Status to:</label>
+                        <div class="btn-group">
+                            <a onclick="changeStatus('/PurchaseOrder/Cancel/@Model.Id')" class="btn btn-outline-danger onChangeDisable">Cancel</a>
+                            <a onclick="changeStatus('/PurchaseOrder/InProgress/@Model.Id')" class="btn btn-outline-warning onChangeDisable">Progress</a>
+                        </div>
+                    }
+                    else if (Model.Status == "Canceled")
+                    {
+                        <label for="btn-group" class="col">Change Status to:</label>
+                        <div id="btn-group" class="btn-group">
+                            <a onclick="changeStatus('/PurchaseOrder/Pending/@Model.Id')" class="btn btn-outline-primary onChangeDisable">Pending</a>
+                            <a onclick="changeStatus('/PurchaseOrder/InProgress/@Model.Id')" class="btn btn-outline-warning onChangeDisable">Progress</a>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+        <div class="mb-3 row p-1 justify-content-center">
+            <div class="col-6">
+                <button id="save" form="editForm" type="button" class="btn btn-primary form-control">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/purchaseOrder.js"></script>
+    <script src="~/js/purchaseOrderItems.js"></script>
+    <script src="~/js/moment.js"></script>
+    <script>
+        $(document).ready(function () {
+            loadDataTable();
+            cloneDataTable();
+            newPartial();
+            $(function () {
+                $('#save').click(function () {
+                    if ($("#editForm").valid()) {
+                        $('#editForm').submit();
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                $('#editForm').on("submit", function (e) {
+                    e.preventDefault()
+                    saveOrder('@Url.Action("Edit", "PurchaseOrder", new { id = "$('#poId')" })', $('#editForm').serialize())
+                })
+            })
+        })
+    </script>
+}
+

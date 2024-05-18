@@ -1,0 +1,63 @@
+﻿@model CompanyDto
+
+<div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Company</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="editForm">
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label for="edit-Name">Company Name: </label>
+                        <input asp-for="Name" class="form-control" id="edit-Name">
+                        <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="edit-Email">Email: </label>
+                        <input class="form-control" asp-for="Email" id="edit-Email">
+                        <input type="hidden" asp-for="Id" id="company-Id">
+                        <input asp-for="Status" hidden id="edit-status">
+                    </div>
+                    <div class="mb-2">
+                        <label for="company-address">Address:</label>
+                        <input asp-for="@Model.Address" type="text" class="form-control" id="edit-address">
+                    </div>
+                    <div class="mb-2">
+                        <label for="company-city" asp-for="@Model.City">City:</label>
+                        <input asp-for="@Model.City" type="text" class="form-control" id="edit-city">
+                    </div>
+                    <div class="mb-2">
+                        <label for="company-zipCode" asp-for="@Model.ZipCode">Zip Code:</label>
+                        <input asp-for="ZipCode" type="text" class="form-control" id="edit-zipCode">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="company-edit" type="button" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#company-edit').click(function () {
+            if ($("#editForm").valid()) {
+                $('#editForm').submit();
+            }
+            else {
+                return false;
+            }
+        });
+
+        $("#editForm").on("submit", function (e) {
+            e.preventDefault()
+            companyEdit($('#editForm').serialize())
+        });        
+    })
+</script>
+

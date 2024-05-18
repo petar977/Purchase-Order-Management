@@ -1,0 +1,59 @@
+﻿@model CompanyDto
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Company</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="companyAdd">
+                    <div class="mb-2">
+                        <label for="company-name">Company Name:</label>
+                        <input asp-for="@Model.Name" type="text" class="form-control" id="company-name">
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="mb-2">
+                        <label for="company-name">Email:</label>
+                        <input asp-for="@Model.Email" type="text" class="form-control" id="company-email">
+                    </div>
+                    <div class="mb-2">
+                        <label for="company-address">Address:</label>
+                        <input asp-for="@Model.Address" type="text" class="form-control" id="company-address">
+                    </div>
+                    <div class="mb-2">
+                        <label for="company-city" asp-for="@Model.City">City:</label>
+                        <input asp-for="@Model.City" type="text" class="form-control" id="company-city">
+                    </div>
+                    <div class="mb-2">
+                        <label for="company-zipCode" asp-for="@Model.City">Zip Code:</label>
+                        <input asp-for="@Model.ZipCode" type="text" class="form-control" id="company-zipCode">
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button form="companyAdd" id="addCompany" type="button" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#addCompany').click(function () {
+            if ($("#companyAdd").valid()) {
+                $('#companyAdd').submit();
+            }
+            else {
+                return false;
+            }
+        });
+        $("#companyAdd").on("submit", function (e) {
+            e.preventDefault()
+            companyAdd();
+        });
+    })
+</script>

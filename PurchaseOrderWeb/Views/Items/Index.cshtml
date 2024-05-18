@@ -1,0 +1,168 @@
+﻿@model ItemsDto
+
+<div class="container p-0 mb-2">
+    <div class="card-header pt-3">
+        <div class="row">
+        <div class="col-6"><h2>Items Management</h2></div>
+        <div class="col-6 text-end">
+            <button type="button" data-bs-toggle="modal" data-bs-target="#add-item-modal" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add</button>
+        </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-lg-3">
+                <label for="filter-company" class="p-0 mt-2">Filter by Company:</label>
+                <select id="filter-company" asp-for="CompanyId" class="form-select">
+                    <option value="0">All</option>
+                    @foreach (var i in Model.Companys)
+                    {
+                        if(i.Status == DataLayer.Models.Status.Active)
+                        {
+                            <option value="@i.CompanyId">@i.CompanyName</option>
+                        }
+                    }
+                </select>
+            </div>
+
+        </div>
+        <div class="table-responsive">
+            <table id="itemsTbl" class="table table-bordered table-striped table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Price</th>
+                    <th>Company</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+<form methot="post" id="editItemsForm">
+    <div class="modal fade" id="edit-item-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div>
+                        <div>
+                            <label asp-for="Name" for="edit-name" class="p-0">Item Name</label>
+                            <input asp-for="Name" id="edit-name" type="text" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="UnitPrice" for="edit-price" class="p-0 mt-2">Unit Price($)</label>
+                            <input asp-for="UnitPrice" id="edit-price" class="form-control" />
+                            <span asp-validation-for="UnitPrice" class="text-danger"></span>
+                        </div>
+                        <div hidden>
+                            <input asp-for="Id" id="edit-id" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveEdit" type="button" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<form methot="post" id="addItemsForm">
+    <div class="modal fade" id="add-item-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div>
+                        <div>
+                            <label asp-for="Name" for="add-name" class="p-0">Item Name</label>
+                            <input asp-for="Name" id="add-name" type="text" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label asp-for="UnitPrice" for="add-price" class="p-0 mt-2">Unit Price($)</label>
+                            <input asp-for="UnitPrice" id="add-price" class="form-control" value="" />
+                            <span asp-validation-for="UnitPrice" class="text-danger"></span>
+                        </div>
+                        <div>
+                            <label for="add-company" class="p-0 mt-2">Company</label>
+                            <select id="add-company" asp-for="CompanyId" class="form-select">
+                                @foreach (var i in Model.Companys)
+                                {
+                                    if(i.Status == DataLayer.Models.Status.Active)
+                                    {
+                                        <option value="@i.CompanyId">@i.CompanyName</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="CompanyId" class="text-danger"></span>
+                        </div>
+                        <div hidden>
+                            <input asp-for="Id" id="edit-id" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveAdd" onclick="" type="button" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts {
+    <script src="~/js/items.js"></script>
+    <script>
+        loadItemsTable();
+        // edit modal
+        $('#saveEdit').click(function () {
+            if ($("#editItemsForm").valid()) {
+                $('#editItemsForm').submit();
+            }
+            else {
+                return false;
+            }
+        });
+        $("#editItemsForm").on("submit", function (e) {
+            e.preventDefault();
+            editItem();
+            $('#edit-item-modal').modal('toggle');
+        });
+        // add modal
+        $('#saveAdd').click(function () {
+            if ($("#addItemsForm").valid()) {
+                $('#addItemsForm').submit();
+                $('#addItemsForm')[0].reset();
+            }
+            else {
+                return false;
+            }
+        });
+        $("#addItemsForm").on("submit", function (e) {
+            e.preventDefault();
+            addItem('/Items/Add', $('#add-name').val(), $('#add-price').val(), $('#add-company').find(':selected').val())
+        });
+        $('#add-item-modal').on('hidden.bs.modal', function (e) {
+            $(this)
+                .find("input,textarea")
+                .val('')
+                .end()
+                .find("input[type=checkbox], input[type=radio]")
+                .prop("checked", "")
+                .end();
+        })
+    </script>
+}

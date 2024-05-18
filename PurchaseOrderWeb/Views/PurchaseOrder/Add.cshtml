@@ -1,0 +1,106 @@
+﻿@model PurchaseOrderDto
+
+<div class="container p-0">
+    <div class="card-header pt-2">
+        <div class="row p-1 justify-content-center">
+            <div class="col-1 col-md-1 p-0 align-content-center justify-content-center">
+                <a id="back" asp-controller="PurchaseOrder" asp-action="Index" class="btn btn-danger border ms-3"><i class="bi bi-backspace"></i></a>
+            </div>
+            <div class="col-lg-11 col-11 align-content-center justify-content-center">
+                <h2 class="text-center my-0" style="margin-right:2.5em;">Add Order</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <form id="addForm" method="post">
+            <div class="mb-2 row p-1">
+                <div class="col">
+                    <label asp-for="VendorName" class="p-0"></label>
+                    <input asp-for="VendorName" class="form-control" />
+                    <span asp-validation-for="VendorName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-2 row p-1">
+                <div class="col">
+                    <label asp-for="PaymentType" class="p-0"></label>
+                    <input asp-for="PaymentType" class="form-control" />
+                    <span asp-validation-for="PaymentType" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-2 row p-1">
+                <div class="col">
+                    <label asp-for="Info" class="p-0"></label>
+                    <textArea asp-for="Info" class="form-control"></textArea>
+                    <span asp-validation-for="Info" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-2 row p-1">
+                <div class="col-12 col-lg-3" id="company-div">
+                    <label asp-for="CompanyId" for="company-select" class="p-0">Company:</label>
+                    <select id="company-select" asp-for="CompanyId" class="form-select">
+                        @foreach (var i in Model.Companies)
+                        {
+                            if(i.Status == DataLayer.Models.Status.Active)
+                            {
+                                <option id="company-option" value="@i.CompanyId">@i.CompanyName</option>
+                            }                            
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="mb-2 row p-1">
+                <div class="col-12 col-lg-3" id="orderType-div">
+                    <label asp-for="CounterId" for="company-select" class="p-0">Order Type:</label>
+                    <select id="order-select" asp-for="CounterId" class="form-select">
+                    </select>
+                    <span asp-validation-for="CounterId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3 row p-1">
+                <div class="col-6 col-md-3">
+                    <button id="submitAdd" type="button" class="btn btn-primary form-control">Add</button>
+                </div>
+            </div>
+            <input id="poId" class="form-control" hidden />
+            <input id="companyId" type="hidden" />
+        </form>
+        <div id="partial">
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/purchaseOrder.js"></script>
+    <script src="~/js/orderCount.js"></script>
+    <script src="~/js/moment.js"></script>
+    <script src="~/js/purchaseOrderItems.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#submitAdd').click(function () {
+                if ($("#addForm").valid()) {
+                    $('#addForm').submit();
+                }
+                else {
+                    return false;
+                }
+            });
+
+            $("#addForm").on("submit", function (event) {
+                event.preventDefault();
+                createOrder('@Url.Action("Add", "PurchaseOrder")', $('#addForm').serialize()).done(function () { newPartial(); })
+                $("#submitAdd").prop("hidden", true);
+                $('#company-div').prop("hidden", true);
+                $('#orderType-div').prop("hidden", true);
+            });
+            $("#companyId").val($('#company-select').val())
+            $('#company-select').on("change", function () {
+                $("#companyId").val($('#company-select').val())
+            })
+            selectCounter();
+            $("#company-select").on("change", function () {
+                $("#order-select").empty();
+                selectCounter();
+            });
+        })
+        //# sourceURL=filename.js
+    </script>
+}

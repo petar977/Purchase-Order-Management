@@ -1,0 +1,51 @@
+﻿@using Po.Common.Models
+@model CounterViewModel
+<form method="post" class="p-0 ">
+
+    <div class="card-header pt-3">
+        <h2>Create Counter</h2>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <div class="card-body">
+
+        <div class="mb-2 row p-1">
+            <div class="col-12 col-lg-3">
+                <label asp-for="OrderCount.FirstLetter">First Letter</label>
+                <input asp-for="OrderCount.FirstLetter" class="form-control" />
+                <span asp-validation-for="OrderCount.FirstLetter" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="mb-2 row p-1">
+            <div class="col-12 col-lg-3">
+                <label asp-for="OrderCount.FullNameLetter">Full Name</label>
+                <input asp-for="OrderCount.FullNameLetter" class="form-control" />
+                <span asp-validation-for="OrderCount.FullNameLetter" class="text-danger "></span>
+            </div>
+        </div>
+        <div class="mb-2 row p-1">
+            <div class="col-12 col-lg-3">
+                <label>Company</label>
+                <select asp-for="OrderCount.CompanyId" class="form-select">
+                    @foreach (var i in Model.CompanyList)
+                    {
+                        if(i.Status == DataLayer.Models.Status.Active)
+                        {
+                            <option value="@i.Id">@i.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <input type="submit" value="Create" class="btn btn-primary"
+               style="width:auto" />
+        <a asp-action="Index" class="btn btn-danger" style="width:auto">Cancel</a>
+    </div>
+
+</form>
+@section Scripts {
+    <script type="text/javascript">
+
+    </script>
+}
